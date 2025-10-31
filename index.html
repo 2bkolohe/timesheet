@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#21808D">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Timesheet">
+    <link rel="manifest" href="manifest.json">
+    <title>Dual Job Timesheet Tracker</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            
+            /* Colorblind-friendly vivid palette */
+            --color-job-a: rgba(0, 114, 178, 1);        /* Strong blue */
+            --color-job-b: rgba(230, 159, 0, 1);        /* Vivid orange */
+            --color-overlap: rgba(204, 121, 167, 1);    /* Vivid magenta/purple */
+            --color-job-a-light: rgba(0, 114, 178, 0.15);
+            --color-job-b-light: rgba(230, 159, 0, 0.15);
+            --color-overlap-light: rgba(204, 121, 167, 0.2);
+            
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+            
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-2xl: 20px;
+            --font-size-3xl: 24px;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 550;
+            --font-weight-bold: 600;
+            
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --space-32: 32px;
+            
+            --radius-base: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-background: var(--color-charcoal-700);
+                --color-surface: var(--color-charcoal-800);
+                --color-text: var(--color-gray-200);
+                --color-text-secondary: rgba(167, 169, 169, 0.7);
+                --color-border: rgba(119, 124, 124, 0.3);
+                --color-card-border: rgba(119, 124, 124, 0.2);
+                
+                --color-job-a-light: rgba(0, 114, 178, 0.25);
+                --color-job-b-light: rgba(230, 159, 0, 0.25);
+                --color-overlap-light: rgba(204, 121, 167, 0.3);
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base);
+            color: var(--color-text);
+            background-color: var(--color-background);
+            line-height: 1.5;
+            padding: var(--space-20);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: var(--space-32);
+        }
+
+        h1 {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--space-8);
+            color: var(--color-text);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: var(--space-12);
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: var(--space-16);
+        }
+
+        .btn {
+            padding: var(--space-8) var(--space-16);
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-family: var(--font-family-base);
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: var(--color-cream-50);
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .btn-secondary {
+            background: rgba(var(--color-brown-600-rgb), 0.12);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(var(--color-brown-600-rgb), 0.2);
+        }
+
+        .legend {
+            display: flex;
+            gap: var(--space-24);
+            flex-wrap: wrap;
+            margin-bottom: var(--space-24);
+            padding: var(--space-16);
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-card-border);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-8);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: var(--radius-base);
+            border: 2px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .weekly-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-16);
+            margin-bottom: var(--space-32);
+            max-width: 600px;
+        }
+
+        .summary-card {
+            background: var(--color-surface);
+            padding: var(--space-20);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-card-border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .summary-card h3 {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-8);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .summary-card .value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text);
+        }
+
+        .days-grid {
+            display: grid;
+            gap: var(--space-20);
+        }
+
+        .day-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-card-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-20);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-16);
+            padding-bottom: var(--space-12);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .day-name {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text);
+        }
+
+        .day-totals {
+            display: flex;
+            gap: var(--space-16);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .gantt-container {
+            overflow-x: auto;
+            margin-bottom: var(--space-24);
+        }
+
+        .gantt-chart {
+            display: grid;
+            grid-template-columns: 100px repeat(48, 40px);
+            gap: 0;
+            min-width: max-content;
+        }
+
+        .gantt-header {
+            position: sticky;
+            left: 0;
+            background: var(--color-surface);
+            padding: var(--space-8);
+            font-weight: var(--font-weight-bold);
+            border-bottom: 2px solid var(--color-border);
+            z-index: 20;
+        }
+
+        .gantt-time-header {
+            border-bottom: 2px solid var(--color-border);
+            border-left: 1px solid var(--color-border);
+            text-align: center;
+            padding: var(--space-4);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text);
+            background: var(--color-surface);
+        }
+
+        .gantt-row-label {
+            position: sticky;
+            left: 0;
+            background: var(--color-surface);
+            padding: var(--space-8);
+            font-weight: var(--font-weight-medium);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            z-index: 10;
+            font-size: var(--font-size-sm);
+        }
+
+        .time-slot {
+            border: 1px solid var(--color-border);
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+            background: var(--color-background);
+            min-height: 40px;
+        }
+
+        .time-slot:hover {
+            border-color: var(--color-primary);
+            box-shadow: inset 0 0 0 1px var(--color-primary);
+            z-index: 5;
+        }
+
+        .time-slot.selected-a {
+            background: var(--color-job-a);
+            border-color: var(--color-job-a);
+        }
+
+        .time-slot.selected-b {
+            background: var(--color-job-b);
+            border-color: var(--color-job-b);
+        }
+
+        .time-slot.selected-a.selected-b {
+            background: var(--color-overlap);
+            border-color: var(--color-overlap);
+        }
+
+        .time-slot.selected-a::after,
+        .time-slot.selected-b::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .time-slot.selected-a.selected-b::after {
+            content: '✓✓';
+            font-size: 14px;
+        }
+
+        .btn-sm {
+            padding: var(--space-8) var(--space-12);
+            font-size: var(--font-size-sm);
+        }
+
+        .day-totals-detail {
+            display: flex;
+            gap: var(--space-16);
+            margin-top: var(--space-12);
+            padding: var(--space-12);
+            background: var(--color-background);
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-sm);
+        }
+
+        .total-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-8);
+        }
+
+        .total-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            padding: var(--space-4) var(--space-8);
+            border-radius: var(--radius-base);
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-sm);
+        }
+
+        .total-badge.job-a {
+            background: var(--color-job-a-light);
+            color: var(--color-job-a);
+            border: 1px solid var(--color-job-a);
+        }
+
+        .total-badge.job-b {
+            background: var(--color-job-b-light);
+            color: var(--color-job-b);
+            border: 1px solid var(--color-job-b);
+        }
+
+        .total-badge.overlap {
+            background: var(--color-overlap-light);
+            color: var(--color-overlap);
+            border: 1px solid var(--color-overlap);
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: var(--space-8);
+            margin-top: var(--space-12);
+            flex-wrap: wrap;
+        }
+
+        .rollover-section {
+            margin-top: var(--space-24);
+            padding: var(--space-20);
+            background: var(--color-surface);
+            border: 1px solid var(--color-card-border);
+            border-radius: var(--radius-lg);
+        }
+
+        .rollover-section h3 {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--space-16);
+            color: var(--color-text);
+        }
+
+        .rollover-controls {
+            display: flex;
+            gap: var(--space-12);
+            flex-wrap: wrap;
+        }
+
+        .job-code-picker {
+            position: fixed;
+            background: var(--color-surface);
+            border: 2px solid var(--color-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-16);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            min-width: 280px;
+        }
+
+        .job-code-picker h4 {
+            margin-bottom: var(--space-12);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text);
+        }
+
+        .job-code-picker select {
+            width: 100%;
+            padding: var(--space-8);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base);
+            color: var(--color-text);
+            background: var(--color-background);
+            margin-bottom: var(--space-12);
+        }
+
+        .job-code-picker-buttons {
+            display: flex;
+            gap: var(--space-8);
+        }
+
+        .job-code-allocations {
+            margin-top: var(--space-24);
+            padding: var(--space-20);
+            background: var(--color-surface);
+            border: 1px solid var(--color-card-border);
+            border-radius: var(--radius-lg);
+        }
+
+        .job-code-allocations h3 {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--space-16);
+            color: var(--color-text);
+        }
+
+        .allocation-grid {
+            display: grid;
+            gap: var(--space-16);
+        }
+
+        .allocation-card {
+            background: var(--color-background);
+            padding: var(--space-16);
+            border-radius: var(--radius-base);
+            border: 1px solid var(--color-border);
+        }
+
+        .allocation-card h4 {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text);
+            margin-bottom: var(--space-8);
+        }
+
+        .allocation-card .period-type {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-12);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .allocation-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-12);
+            margin-top: var(--space-12);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-4);
+        }
+
+        .stat-value {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--color-border);
+            border-radius: var(--radius-base);
+            overflow: hidden;
+            margin-top: var(--space-8);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-primary);
+            transition: width 0.3s;
+        }
+
+        .progress-fill.warning {
+            background: var(--color-job-b);
+        }
+
+        .progress-fill.danger {
+            background: var(--color-overlap);
+        }
+
+        @media (max-width: 768px) {
+            .gantt-chart {
+                grid-template-columns: 80px repeat(48, 30px);
+            }
+
+            .gantt-time-header {
+                font-size: 10px;
+                padding: var(--space-2);
+            }
+
+            .time-slot {
+                min-height: 30px;
+            }
+            
+            .weekly-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @font-face {
+            font-family: 'FKGroteskNeue';
+            src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dual Job Timesheet Tracker</h1>
+            <div style="font-size: var(--font-size-lg); color: var(--color-text-secondary); margin-bottom: var(--space-12); display: flex; align-items: center; gap: var(--space-16); flex-wrap: wrap;">
+                <button class="btn btn-secondary btn-sm" onclick="navigateWeek(-1)">← Prev Week</button>
+                <span id="currentPeriod"></span>
+                <button class="btn btn-secondary btn-sm" onclick="navigateWeek(1)">Next Week →</button>
+                <span style="margin-left: var(--space-16);">|</span>
+                <button class="btn btn-secondary btn-sm" onclick="navigateMonth(-1)">← Prev Month</button>
+                <button class="btn btn-secondary btn-sm" onclick="navigateMonth(1)">Next Month →</button>
+            </div>
+            <div class="header-controls">
+                <button class="btn btn-primary" onclick="exportToCSV()">Export to CSV</button>
+                <button class="btn btn-primary" onclick="saveData()">Save Data</button>
+                <button class="btn btn-secondary" onclick="loadData()">Load Data</button>
+                <button class="btn btn-secondary" onclick="clearAllData()">Clear All Data</button>
+            </div>
+        </header>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--color-job-a);"></div>
+                <span>MatrixCare Only</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--color-job-b);"></div>
+                <span>PPRS Only</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--color-overlap);"></div>
+                <span>Overlapping Hours (Double-Dip)</span>
+            </div>
+        </div>
+
+        <div class="weekly-summary">
+            <div class="summary-card">
+                <h3>MatrixCare Total</h3>
+                <div class="value" id="jobATotalHours">0.0</div>
+            </div>
+            <div class="summary-card">
+                <h3>PPRS Total</h3>
+                <div class="value" id="jobBTotalHours">0.0</div>
+            </div>
+            <div class="summary-card">
+                <h3>Overlapping Hours</h3>
+                <div class="value" id="overlapHours">0.0</div>
+            </div>
+            <div class="summary-card">
+                <h3>Unique Hours Worked</h3>
+                <div class="value" id="uniqueHours">0.0</div>
+            </div>
+        </div>
+
+        <div class="rollover-section">
+            <h3>Rollover Controls</h3>
+            <div class="rollover-controls">
+                <button class="btn btn-secondary" onclick="rolloverJobA()">Rollover MatrixCare to Next Week</button>
+                <button class="btn btn-secondary" onclick="rolloverJobB()">Rollover PPRS to Next Week</button>
+            </div>
+        </div>
+
+        <div id="daysContainer" class="days-grid"></div>
+    </div>
+
+    <script>
+        const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        
+        // Track current week offset (0 = current week, -1 = last week, 1 = next week, etc.)
+        let currentWeekOffset = 0;
+        
+        // Data structure: week-based storage
+        // Key: "YYYY-MM-DD" (Sunday date), Value: week data
+        let allWeeksData = {};
+        
+        // Current week data pointer
+        let timeData = {
+            Sunday: { jobA: new Set(), jobB: new Map() },
+            Monday: { jobA: new Set(), jobB: new Map() },
+            Tuesday: { jobA: new Set(), jobB: new Map() },
+            Wednesday: { jobA: new Set(), jobB: new Map() },
+            Thursday: { jobA: new Set(), jobB: new Map() },
+            Friday: { jobA: new Set(), jobB: new Map() },
+            Saturday: { jobA: new Set(), jobB: new Map() }
+        };
+
+        // Job code definitions with allocation periods
+        const jobCodes = {
+            current: [
+                { name: 'Homemaker Basic', type: 'monthly', hours: 0 },
+                { name: 'Community Connector', type: 'monthly', hours: 40 }
+            ],
+            '2026': [
+                { name: 'Extraordinary cleaning', type: 'monthly', hours: 14.5 },
+                { name: 'Community Connector', type: 'monthly', hours: 43.333 },
+                { name: 'Unskilled Respite', type: 'monthly', hours: 64 },
+                { name: 'Legally Responsible Homemaker', type: 'weekly', hours: 14 }
+            ]
+        };
+
+        // Current active job codes (starts with 'current', switches to '2026' on 1/1/2026)
+        let activeJobCodes = new Date() >= new Date('2026-01-01') ? jobCodes['2026'] : jobCodes.current;
+
+        // Initialize the app
+        function init() {
+            updateCurrentPeriod();
+            renderDays();
+            calculateTotals();
+            
+            // Add job code allocations section
+            const container = document.querySelector('.container');
+            const allocSection = document.createElement('div');
+            allocSection.className = 'job-code-allocations';
+            allocSection.id = 'jobCodeAllocations';
+            allocSection.innerHTML = `
+                <h3>PPRS Job Code Allocations</h3>
+                <div class="allocation-grid"></div>
+            `;
+            
+            // Insert before days container
+            const daysContainer = document.getElementById('daysContainer');
+            container.insertBefore(allocSection, daysContainer);
+            
+            updateJobCodeAllocations();
+        }
+
+        // Render all day cards
+        function renderDays() {
+            const container = document.getElementById('daysContainer');
+            container.innerHTML = '';
+
+            DAYS.forEach(day => {
+                const dayCard = createDayCard(day);
+                container.appendChild(dayCard);
+            });
+        }
+
+        // Create a single day card with Gantt-style layout
+        function createDayCard(day) {
+            const card = document.createElement('div');
+            card.className = 'day-card';
+            card.id = `day-${day}`;
+
+            const header = document.createElement('div');
+            header.className = 'day-header';
+            
+            const dayName = document.createElement('div');
+            dayName.className = 'day-name';
+            dayName.textContent = day;
+            
+            header.appendChild(dayName);
+
+            // Gantt container
+            const ganttContainer = document.createElement('div');
+            ganttContainer.className = 'gantt-container';
+
+            const ganttChart = document.createElement('div');
+            ganttChart.className = 'gantt-chart';
+
+            // Header row - empty cell + time slots
+            const headerCell = document.createElement('div');
+            headerCell.className = 'gantt-header';
+            headerCell.textContent = 'Job';
+            ganttChart.appendChild(headerCell);
+
+            // Create 48 time slot headers (0:00, 0:30, 1:00, 1:30, ..., 23:30)
+            for (let i = 0; i < 48; i++) {
+                const hour = Math.floor(i / 2);
+                const minute = (i % 2) * 30;
+                const timeHeader = document.createElement('div');
+                timeHeader.className = 'gantt-time-header';
+                timeHeader.textContent = i % 2 === 0 ? `${hour}:00` : ':30';
+                ganttChart.appendChild(timeHeader);
+            }
+
+            // Job A row
+            const labelA = document.createElement('div');
+            labelA.className = 'gantt-row-label';
+            labelA.textContent = 'MatrixCare';
+            labelA.style.color = 'var(--color-job-a)';
+            ganttChart.appendChild(labelA);
+
+            for (let i = 0; i < 48; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'time-slot';
+                slot.dataset.day = day;
+                slot.dataset.job = 'jobA';
+                slot.dataset.slot = i;
+                slot.onclick = () => toggleSlot(day, 'jobA', i);
+                ganttChart.appendChild(slot);
+            }
+
+            // Job B row
+            const labelB = document.createElement('div');
+            labelB.className = 'gantt-row-label';
+            labelB.textContent = 'PPRS';
+            labelB.style.color = 'var(--color-job-b)';
+            ganttChart.appendChild(labelB);
+
+            for (let i = 0; i < 48; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'time-slot';
+                slot.dataset.day = day;
+                slot.dataset.job = 'jobB';
+                slot.dataset.slot = i;
+                slot.onclick = (e) => showJobCodePicker(e, day, 'jobB', i);
+                ganttChart.appendChild(slot);
+            }
+
+            ganttContainer.appendChild(ganttChart);
+
+            // Day totals detail
+            const totalsDetail = document.createElement('div');
+            totalsDetail.className = 'day-totals-detail';
+            totalsDetail.id = `totals-${day}`;
+
+            // Quick actions
+            const quickActions = document.createElement('div');
+            quickActions.className = 'quick-actions';
+            
+            const clearDayA = document.createElement('button');
+            clearDayA.className = 'btn btn-secondary btn-sm';
+            clearDayA.textContent = 'Clear MatrixCare';
+            clearDayA.onclick = () => clearDayJob(day, 'jobA');
+            
+            const clearDayB = document.createElement('button');
+            clearDayB.className = 'btn btn-secondary btn-sm';
+            clearDayB.textContent = 'Clear PPRS';
+            clearDayB.onclick = () => clearDayJob(day, 'jobB');
+            
+            const rolloverDayA = document.createElement('button');
+            rolloverDayA.className = 'btn btn-secondary btn-sm';
+            rolloverDayA.textContent = 'Rollover MatrixCare from Last Week';
+            rolloverDayA.onclick = () => rolloverDayFromLastWeek(day, 'jobA');
+            
+            const rolloverDayB = document.createElement('button');
+            rolloverDayB.className = 'btn btn-secondary btn-sm';
+            rolloverDayB.textContent = 'Rollover PPRS from Last Week';
+            rolloverDayB.onclick = () => rolloverDayFromLastWeek(day, 'jobB');
+
+            quickActions.appendChild(clearDayA);
+            quickActions.appendChild(clearDayB);
+            quickActions.appendChild(rolloverDayA);
+            quickActions.appendChild(rolloverDayB);
+
+            card.appendChild(header);
+            card.appendChild(ganttContainer);
+            card.appendChild(totalsDetail);
+            card.appendChild(quickActions);
+
+            updateDayDisplay(day);
+
+            return card;
+        }
+
+        // Show job code picker for PPRS slots
+        function showJobCodePicker(event, day, job, slotIndex) {
+            event.stopPropagation();
+            
+            // Remove any existing picker
+            const existingPicker = document.querySelector('.job-code-picker');
+            if (existingPicker) {
+                existingPicker.remove();
+            }
+
+            // Check if slot is already selected - if so, remove it
+            if (timeData[day].jobB.has(slotIndex)) {
+                timeData[day].jobB.delete(slotIndex);
+                updateDayDisplay(day);
+                calculateTotals();
+                updateJobCodeAllocations();
+                saveCurrentWeek();
+                return;
+            }
+
+            // Create picker
+            const picker = document.createElement('div');
+            picker.className = 'job-code-picker';
+            
+            const rect = event.target.getBoundingClientRect();
+            picker.style.left = `${rect.left}px`;
+            picker.style.top = `${rect.bottom + 8}px`;
+
+            const title = document.createElement('h4');
+            title.textContent = 'Select PPRS Job Code';
+
+            const select = document.createElement('select');
+            select.innerHTML = '<option value="">-- Select Job Code --</option>';
+            activeJobCodes.forEach(code => {
+                const option = document.createElement('option');
+                option.value = code.name;
+                option.textContent = code.name;
+                select.appendChild(option);
+            });
+
+            const buttons = document.createElement('div');
+            buttons.className = 'job-code-picker-buttons';
+
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'btn btn-primary btn-sm';
+            confirmBtn.textContent = 'Confirm';
+            confirmBtn.onclick = () => {
+                if (select.value) {
+                    timeData[day].jobB.set(slotIndex, select.value);
+                    updateDayDisplay(day);
+                    calculateTotals();
+                    updateJobCodeAllocations();
+                    saveCurrentWeek();
+                }
+                picker.remove();
+            };
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'btn btn-secondary btn-sm';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.onclick = () => picker.remove();
+
+            buttons.appendChild(confirmBtn);
+            buttons.appendChild(cancelBtn);
+
+            picker.appendChild(title);
+            picker.appendChild(select);
+            picker.appendChild(buttons);
+            document.body.appendChild(picker);
+
+            // Close picker when clicking outside
+            setTimeout(() => {
+                const closeHandler = (e) => {
+                    if (!picker.contains(e.target)) {
+                        picker.remove();
+                        document.removeEventListener('click', closeHandler);
+                    }
+                };
+                document.addEventListener('click', closeHandler);
+            }, 0);
+        }
+
+        // Toggle a time slot (for Job A only now)
+        function toggleSlot(day, job, slotIndex) {
+            const slot = timeData[day][job];
+            if (slot.has(slotIndex)) {
+                slot.delete(slotIndex);
+            } else {
+                slot.add(slotIndex);
+            }
+            updateDayDisplay(day);
+            calculateTotals();
+            saveCurrentWeek();
+        }
+
+        // Clear all slots for a job on a specific day
+        function clearDayJob(day, job) {
+            timeData[day][job].clear();
+            updateDayDisplay(day);
+            calculateTotals();
+            updateJobCodeAllocations();
+            saveCurrentWeek();
+        }
+        
+        // Rollover a specific day and job from last week
+        function rolloverDayFromLastWeek(day, job) {
+            const lastWeekKey = getWeekKey(new Date(getCurrentWeekRange().start.getTime() - (7 * 24 * 60 * 60 * 1000)));
+            
+            if (!allWeeksData[lastWeekKey]) {
+                alert('No data found for last week.');
+                return;
+            }
+            
+            const lastWeekData = allWeeksData[lastWeekKey][day];
+            if (!lastWeekData) {
+                alert(`No data found for ${day} last week.`);
+                return;
+            }
+            
+            if (job === 'jobA') {
+                timeData[day].jobA = new Set(lastWeekData.jobA);
+            } else {
+                timeData[day].jobB = new Map(lastWeekData.jobB);
+            }
+            
+            updateDayDisplay(day);
+            calculateTotals();
+            updateJobCodeAllocations();
+            saveCurrentWeek();
+            
+            const jobName = job === 'jobA' ? 'MatrixCare' : 'PPRS';
+            alert(`${jobName} hours for ${day} rolled over from last week.`);
+        }
+
+        // Convert slot index (0-47) to time string
+        function slotToTime(slotIndex) {
+            const hour = Math.floor(slotIndex / 2);
+            const minute = (slotIndex % 2) * 30;
+            return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        }
+
+        // Update the visual display for a day
+        function updateDayDisplay(day) {
+            // Update all time slots for this day
+            const ganttChart = document.querySelector(`#day-${day} .gantt-chart`);
+            if (!ganttChart) return;
+
+            const slots = ganttChart.querySelectorAll('.time-slot');
+            
+            slots.forEach(slot => {
+                const slotJob = slot.dataset.job;
+                const slotIndex = parseInt(slot.dataset.slot);
+                const slotDay = slot.dataset.day;
+
+                if (slotDay !== day) return;
+
+                const hasJobA = timeData[day].jobA.has(slotIndex);
+                const hasJobB = timeData[day].jobB.has(slotIndex);
+
+                slot.className = 'time-slot';
+                
+                if (slotJob === 'jobA' && hasJobA) {
+                    slot.classList.add('selected-a');
+                    if (hasJobB) {
+                        slot.classList.add('selected-b');
+                    }
+                } else if (slotJob === 'jobB' && hasJobB) {
+                    slot.classList.add('selected-b');
+                    if (hasJobA) {
+                        slot.classList.add('selected-a');
+                    }
+                }
+            });
+
+            // Update day totals
+            const jobAHours = timeData[day].jobA.size * 0.5;
+            const jobBHours = timeData[day].jobB.size * 0.5;
+            const overlapSlots = Array.from(timeData[day].jobA).filter(s => timeData[day].jobB.has(s)).length;
+            const overlapHours = overlapSlots * 0.5;
+
+            const totalsEl = document.getElementById(`totals-${day}`);
+            totalsEl.innerHTML = `
+                <div class="total-item">
+                    <span>MatrixCare:</span>
+                    <span class="total-badge job-a">${jobAHours.toFixed(1)}h</span>
+                </div>
+                <div class="total-item">
+                    <span>PPRS:</span>
+                    <span class="total-badge job-b">${jobBHours.toFixed(1)}h</span>
+                </div>
+                <div class="total-item">
+                    <span>Overlap:</span>
+                    <span class="total-badge overlap">${overlapHours.toFixed(1)}h</span>
+                </div>
+            `;
+        }
+
+        // Get current month start and end dates
+        function getCurrentMonthRange() {
+            const now = new Date();
+            const start = new Date(now.getFullYear(), now.getMonth(), 1);
+            const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            return { start, end };
+        }
+
+        // Get current week start (Sunday) and end (Saturday) with offset
+        function getCurrentWeekRange() {
+            const now = new Date();
+            const dayOfWeek = now.getDay();
+            const start = new Date(now);
+            start.setDate(now.getDate() - dayOfWeek + (currentWeekOffset * 7));
+            const end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            return { start, end };
+        }
+        
+        // Get week key (Sunday date as YYYY-MM-DD)
+        function getWeekKey(date = null) {
+            const weekRange = date ? { start: date } : getCurrentWeekRange();
+            const d = weekRange.start;
+            return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+        }
+        
+        // Save current week data to storage
+        function saveCurrentWeek() {
+            const weekKey = getWeekKey();
+            const weekData = {};
+            DAYS.forEach(day => {
+                weekData[day] = {
+                    jobA: Array.from(timeData[day].jobA),
+                    jobB: Array.from(timeData[day].jobB.entries())
+                };
+            });
+            allWeeksData[weekKey] = weekData;
+        }
+        
+        // Load week data from storage
+        function loadWeekData() {
+            const weekKey = getWeekKey();
+            if (allWeeksData[weekKey]) {
+                const weekData = allWeeksData[weekKey];
+                DAYS.forEach(day => {
+                    timeData[day].jobA = new Set(weekData[day].jobA);
+                    timeData[day].jobB = new Map(weekData[day].jobB);
+                });
+            } else {
+                // Initialize empty week
+                DAYS.forEach(day => {
+                    timeData[day].jobA = new Set();
+                    timeData[day].jobB = new Map();
+                });
+            }
+        }
+        
+        // Navigate weeks
+        function navigateWeek(direction) {
+            saveCurrentWeek();
+            currentWeekOffset += direction;
+            loadWeekData();
+            updateCurrentPeriod();
+            renderDays();
+            calculateTotals();
+            updateJobCodeAllocations();
+        }
+        
+        // Navigate months
+        function navigateMonth(direction) {
+            saveCurrentWeek();
+            const weekRange = getCurrentWeekRange();
+            const currentMonth = weekRange.start.getMonth();
+            const targetDate = new Date(weekRange.start);
+            targetDate.setMonth(currentMonth + direction);
+            
+            // Calculate week offset to target month
+            const now = new Date();
+            now.setDate(now.getDate() - now.getDay());
+            const diffTime = targetDate - now;
+            const diffWeeks = Math.round(diffTime / (7 * 24 * 60 * 60 * 1000));
+            
+            currentWeekOffset = diffWeeks;
+            loadWeekData();
+            updateCurrentPeriod();
+            renderDays();
+            calculateTotals();
+            updateJobCodeAllocations();
+        }
+
+        // Calculate hours logged for a specific job code
+        function calculateJobCodeHours(jobCodeName, periodType) {
+            let totalHours = 0;
+            const dateRange = periodType === 'monthly' ? getCurrentMonthRange() : getCurrentWeekRange();
+            
+            // For this implementation, we're counting all days in timeData
+            // In a real app, you'd filter by actual dates
+            DAYS.forEach(day => {
+                timeData[day].jobB.forEach((code, slot) => {
+                    if (code === jobCodeName) {
+                        totalHours += 0.5;
+                    }
+                });
+            });
+
+            return totalHours;
+        }
+
+        // Update job code allocation displays
+        function updateJobCodeAllocations() {
+            const container = document.getElementById('jobCodeAllocations');
+            if (!container) return;
+
+            const allocGrid = container.querySelector('.allocation-grid');
+            allocGrid.innerHTML = '';
+
+            activeJobCodes.forEach(code => {
+                const logged = calculateJobCodeHours(code.name, code.type);
+                const remaining = Math.max(0, code.hours - logged);
+                const percentage = code.hours > 0 ? (logged / code.hours) * 100 : 0;
+
+                const card = document.createElement('div');
+                card.className = 'allocation-card';
+
+                let progressClass = '';
+                if (percentage > 90) progressClass = 'danger';
+                else if (percentage > 75) progressClass = 'warning';
+
+                card.innerHTML = `
+                    <h4>${code.name}</h4>
+                    <div class="period-type">${code.type === 'monthly' ? 'Monthly' : 'Weekly'} Allocation</div>
+                    <div class="allocation-stats">
+                        <div class="stat">
+                            <div class="stat-label">Allocated</div>
+                            <div class="stat-value">${code.hours.toFixed(1)}h</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Logged</div>
+                            <div class="stat-value">${logged.toFixed(1)}h</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Remaining</div>
+                            <div class="stat-value">${remaining.toFixed(1)}h</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill ${progressClass}" style="width: ${Math.min(100, percentage)}%"></div>
+                    </div>
+                `;
+
+                allocGrid.appendChild(card);
+            });
+        }
+
+        // Calculate hours for a specific day and job
+        function calculateDayHours(day, job) {
+            if (job === 'jobB') {
+                return timeData[day][job].size * 0.5;
+            }
+            return timeData[day][job].size * 0.5;
+        }
+
+        // Calculate overlap hours for a day
+        function calculateDayOverlap(day) {
+            const overlapSlots = Array.from(timeData[day].jobA).filter(s => timeData[day].jobB.has(s));
+            return overlapSlots.length * 0.5;
+        }
+
+        // Calculate all totals
+        function calculateTotals() {
+            let totalJobA = 0;
+            let totalJobB = 0;
+            let totalOverlap = 0;
+
+            DAYS.forEach(day => {
+                totalJobA += calculateDayHours(day, 'jobA');
+                totalJobB += calculateDayHours(day, 'jobB');
+                totalOverlap += calculateDayOverlap(day);
+            });
+
+            const uniqueHours = (totalJobA + totalJobB) - totalOverlap;
+
+            document.getElementById('jobATotalHours').textContent = totalJobA.toFixed(1);
+            document.getElementById('jobBTotalHours').textContent = totalJobB.toFixed(1);
+            document.getElementById('overlapHours').textContent = totalOverlap.toFixed(1);
+            document.getElementById('uniqueHours').textContent = uniqueHours.toFixed(1);
+        }
+
+        // Rollover Job A hours to next week
+        function rolloverJobA() {
+            const confirmation = confirm('This will keep all MatrixCare hours for next week and clear PPRS. Continue?');
+            if (!confirmation) return;
+
+            DAYS.forEach(day => {
+                // Keep Job A, clear Job B
+                timeData[day].jobB = new Map();
+            });
+
+            renderDays();
+            calculateTotals();
+            updateJobCodeAllocations();
+            saveCurrentWeek();
+        }
+
+        // Rollover Job B hours to next week
+        function rolloverJobB() {
+            const confirmation = confirm('This will keep all PPRS hours for next week and clear MatrixCare. Continue?');
+            if (!confirmation) return;
+
+            DAYS.forEach(day => {
+                // Keep Job B, clear Job A
+                timeData[day].jobA = new Set();
+            });
+
+            renderDays();
+            calculateTotals();
+            updateJobCodeAllocations();
+            saveCurrentWeek();
+        }
+
+        // Clear all data
+        function clearAllData() {
+            const confirmation = confirm('This will clear ALL time entries for the current week. Are you sure?');
+            if (!confirmation) return;
+
+            DAYS.forEach(day => {
+                timeData[day].jobA = new Set();
+                timeData[day].jobB = new Map();
+            });
+
+            renderDays();
+            calculateTotals();
+            updateJobCodeAllocations();
+            saveCurrentWeek();
+        }
+        
+        // Save all data to JSON file
+        function saveData() {
+            saveCurrentWeek();
+            const dataToSave = {
+                version: '1.0',
+                savedDate: new Date().toISOString(),
+                currentWeekOffset: currentWeekOffset,
+                weeksData: allWeeksData
+            };
+            
+            const json = JSON.stringify(dataToSave, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `timesheet-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            alert('Data saved successfully! Upload this file to Google Drive for safekeeping.');
+        }
+        
+        // Load data from JSON file
+        function loadData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        if (data.version && data.weeksData) {
+                            allWeeksData = data.weeksData;
+                            currentWeekOffset = data.currentWeekOffset || 0;
+                            loadWeekData();
+                            updateCurrentPeriod();
+                            renderDays();
+                            calculateTotals();
+                            updateJobCodeAllocations();
+                            alert('Data loaded successfully!');
+                        } else {
+                            alert('Invalid data file format.');
+                        }
+                    } catch (error) {
+                        alert('Error loading data file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            let csv = 'Day,Job,Job Code,Time Slot,Hours\n';
+
+            DAYS.forEach(day => {
+                // Export Job A slots
+                const jobASlots = Array.from(timeData[day].jobA).sort((a, b) => a - b);
+                jobASlots.forEach(slot => {
+                    const time = slotToTime(slot);
+                    csv += `${day},MatrixCare,N/A,${time},0.5\n`;
+                });
+
+                // Export Job B slots with job codes
+                const jobBSlots = Array.from(timeData[day].jobB.entries()).sort((a, b) => a[0] - b[0]);
+                jobBSlots.forEach(([slot, jobCode]) => {
+                    const time = slotToTime(slot);
+                    csv += `${day},PPRS,${jobCode},${time},0.5\n`;
+                });
+            });
+
+            // Add summary
+            csv += '\nSummary\n';
+            csv += `MatrixCare Total,${document.getElementById('jobATotalHours').textContent}\n`;
+            csv += `PPRS Total,${document.getElementById('jobBTotalHours').textContent}\n`;
+            csv += `Overlapping Hours,${document.getElementById('overlapHours').textContent}\n`;
+            csv += `Unique Hours Worked,${document.getElementById('uniqueHours').textContent}\n`;
+
+            // Add job code breakdown
+            csv += '\nPPRS Job Code Breakdown\n';
+            csv += 'Job Code,Period Type,Allocated Hours,Logged Hours,Remaining Hours\n';
+            activeJobCodes.forEach(code => {
+                const logged = calculateJobCodeHours(code.name, code.type);
+                const remaining = Math.max(0, code.hours - logged);
+                csv += `${code.name},${code.type},${code.hours.toFixed(1)},${logged.toFixed(1)},${remaining.toFixed(1)}\n`;
+            });
+
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `timesheet-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Update current period display
+        function updateCurrentPeriod() {
+            const now = new Date();
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            const weekRange = getCurrentWeekRange();
+            
+            const monthYear = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+            const weekStart = `${weekRange.start.getMonth() + 1}/${weekRange.start.getDate()}`;
+            const weekEnd = `${weekRange.end.getMonth() + 1}/${weekRange.end.getDate()}`;
+            
+            document.getElementById('currentPeriod').textContent = 
+                `${monthYear} • Week of ${weekStart} - ${weekEnd}`;
+        }
+
+        // Initialize on load
+        init();
+        loadWeekData();
+        
+        // Register service worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
